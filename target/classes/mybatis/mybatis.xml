@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+  
+  <configuration>
+  
+  
+  	<!--  하다보면 패키지명이 바뀌거나 사라지는경우에 경로 일일히 바꿔주기 귀찮으니깐 그냥 이렇게 해주는거임 -->
+  	<typeAliases>
+  	
+  		<typeAlias type="com.ktds.community.vo.CommunityVO" alias="CommunityVO"/>
+  		<typeAlias type="com.ktds.member.vo.MemberVO" alias="MemberVO"/>
+  		
+  		
+  	</typeAliases>
+  
+  
+  
+  	<mappers>
+  		<mapper resource="/com/ktds/community/dao/sql/communityDao.xml"/>
+  		<mapper resource="/com/ktds/member/dao/sql/memberDao.xml"/>
+  	</mappers>
+  
+  </configuration>

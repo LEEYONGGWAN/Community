@@ -1,0 +1,56 @@
+@charset "UTF-8";
+
+p, div, a, li, span, td, u, i, input, textarea, b, body {
+	font-size: 12pt;
+	color: #333;
+	font-family: " 맑은고딕 ";
+}
+
+body {
+	margin: 0px;
+	padding: 0px;
+}
+
+#wrapper {
+	margin: 0 auto;
+	width: 1000px;
+}
+
+h1.title {
+	background-color: #E3E3E3;
+	margin: 0px;
+	padding: 15px;
+	color: #333;
+	margin-bottom: 10px;
+}
+
+table.grid {
+	/* 경계선 여백 제거*/
+	border-collapse: collapse;
+}
+
+table.grid>thead th {
+	background-color: #D3D3D3;
+	padding: 10px;
+	font-size: 14pt
+}
+
+table.grid>tbody td {
+	padding: 10px;
+}
+
+table.grid>tbody tr:nth-child(odd) {
+	background-color: #ffe5a8;
+}
+
+table.grid>tbody tr>td:nth-child(1) {
+	text-algin: center;
+}
+
+table.grid>tbody tr>td:nth-child(3) {
+	text-algin: center;
+}
+
+table.grid>tfoot tr {
+	margin-top: 10px;
+}

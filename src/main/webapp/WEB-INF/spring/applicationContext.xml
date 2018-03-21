@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- controller를 찾아주는 기능 -->
+	<mvc:annotation-driven />
+
+	<!-- 정적자원 설정 mapping : 정적자원을 가져올 고유 URL location : 정적자원이 있는 Base home /web-inf/static/js/jquery-3.3.1.min.js 
+		==> http://localhost:ContextPath/static/js/jqery-3.3.1.min.js 이렇게 들어가야 데려올수있음 -->
+	<mvc:resources mapping="/static/**" location="/WEB-INF/static/" />
+
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/login" />
+			<mvc:exclude-mapping path="/regist" />			
+			<mvc:exclude-mapping path="/static/**" />
+
+			<bean id="sessionInterceptor" class="com.ktds.interceptors.SessionInterceptor" />
+		</mvc:interceptor>
+
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+
+			<bean id="IpBlockInterceptor" class="com.ktds.interceptors.IpBlockInterceptor" />
+		</mvc:interceptor>
+
+		<mvc:interceptor>
+			<mvc:mapping path="/login" />
+
+			<bean id="LoginIntercepter" class="com.ktds.interceptors.LoginIntercepter" />
+		</mvc:interceptor>
+
+
+	</mvc:interceptors>
+
+
+
+
+	<!-- validator를 사용하기위한 사전준비 검증할때 쓰는거임 -->
+	<bean id="validator"
+		class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+
+		<property name="prefix" value="/WEB-INF/view/" />
+		<property name="suffix" value=".jsp" />
+
+	</bean>
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="maxUploadSize" value="104857600"></property>
+	</bean>
+
+
+
+	<import resource="controllerContext.xml" />
+
+
+</beans>

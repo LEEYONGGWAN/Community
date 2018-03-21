@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- namespace에는 인터페이스의 이름을 적어준다. -->
+  
+  <mapper namespace="CommunityDao">
+  	<!--pk만 id 라고 준다. 순서 상관없이 다 맞춰서 넣어라  -->
+  
+  	<resultMap type="CommunityVO" id="CommunityVOMap">
+  		<id column="ID" property="id" />
+  		<result column="TITLE" property="title" />
+  		<result column="USER_ID" property="userId" />
+  		<result column="BODY" property="body" />
+  		<result column="WRITE_DATE" property="writeDate" />
+  		<result column="VIEW_COUNT" property="viewCount" />
+  		<result column="RECOMMEND_COUNT" property="recommendCount" />
+  		<result column="REQUEST_IP" property="requestIp" />
+  		<result column="DISPLAY_FILE_NAME" property="displayFilename" />
+  		<!-- 결과를 다른 객체에 할당
+  			자바타입은 경로 적어주는건데 이미 우리는 마이배티스에 적어줘서 저렇게 해줌 -->
+  		<association property="memberVO" javaType="memberVO">
+  			<id column="M_ID" property="id"/>
+  			<result column="EMAIL" property="email"/>
+  			<result column="NICKNAME" property="nickname"/>
+  			<result column="REGIST_DATE" property="registDate"/>
+  		</association>
+  	</resultMap>
+  	
+  	
+  	<!-- interface에 있는 메소드의 이름을 적는다 -->
+  	<!-- resultType 은 저 타입으로 변형시켜서 돌려준다. join 타입이 없을떄-->
+  	<!-- resultMap 은 join 타입이 있을떄-->
+  	
+  	<select id="selectAll" resultMap="CommunityVOMap">
+		SELECT  C.ID
+  			    , C.TITLE
+  			    , C.BODY
+  			    , C.USER_ID 
+  			    , TO_CHAR(C.WRITE_DATE , 'YYYY-MM-DD HH24:MI:SS') WRITE_DATE
+  			    , C.VIEW_COUNT 
+  			    , C.RECOMMEND_COUNT
+  			    , C.REQUEST_IP 
+  			    , C.DISPLAY_FILE_NAME
+                , M.ID M_ID
+                , M.EMAIL
+                , M.NICKNAME
+                , M.REGIST_DATE
+  		FROM	COMMUNITY C
+  			    , MEMBER M
+  		WHERE   C.USER_ID = M.ID(+)	   
+  		ORDER   BY C.ID DESC
+  	</select>
+  	
+  	<!-- 밸류즈에서  -->
+  	<insert id="insertCommunity" parameterType="CommunityVO">
+		INSERT	INTO COMMUNITY (
+			ID
+			, TITLE
+			, BODY
+			, USER_ID
+			, WRITE_DATE
+			, VIEW_COUNT
+			, RECOMMEND_COUNT
+			, REQUEST_IP
+			, DISPLAY_FILE_NAME			
+		)
+		VALUES	(
+			COMMUNITY_ID_SEQ.NEXTVAL
+			, #{title}
+			, #{body}
+			, #{userId}
+			, SYSDATE
+			, 0
+			, 0
+			, #{requestIp}
+			, #{displayFilename}
+		)  		
+  	</insert>
+  	
+  	<!-- 파라미터 타입 받을때 _int 교재 고급 140page -->
+  	<!-- 이 매소드는 조회수를 증가시켜주는애 -->
+  	<update id="incrementViewCount" parameterType="_int">
+  		UPDATE	COMMUNITY
+  		SET		VIEW_COUNT = VIEW_COUNT + 1
+  		WHERE	ID = #{id}
+  	</update>
+  	
+  	<update id="incrementRCount" parameterType="_int">
+  		UPDATE	COMMUNITY
+  		SET		RECOMMEND_COUNT = RECOMMEND_COUNT + 1
+  		WHERE	ID = #{id}
+  	</update>
+  	
+  	
+  	<select id="selectOne" parameterType= "_int" resultMap="CommunityVOMap">
+  		SELECT  C.ID
+  			    , C.TITLE
+  			    , C.BODY
+  			    , C.USER_ID 
+  			    , TO_CHAR(C.WRITE_DATE , 'YYYY-MM-DD HH24:MI:SS') WRITE_DATE
+  			    , C.VIEW_COUNT 
+  			    , C.RECOMMEND_COUNT
+  			    , C.REQUEST_IP 
+  			    , C.DISPLAY_FILE_NAME
+                , M.ID M_ID
+                , M.EMAIL
+                , M.NICKNAME
+                , M.REGIST_DATE
+  		FROM	COMMUNITY C
+  			    , MEMBER M
+  		WHERE   C.USER_ID = M.ID(+)
+  		AND		C.ID = #{id}
+  	</select>
+  
+	<delete id="deleteOne" parameterType = "_int"> 
+		DELETE
+		FROM	COMMUNITY
+		WHERE	ID = #{id}	
+	</delete>
+  	
+  	<delete id="deleteMyCommunities" parameterType = "_int"> 
+		DELETE
+		FROM	COMMUNITY
+		WHERE	USER_ID = #{userId}	
+	</delete>
+	<!-- 파라미터에 따라서 유동적으로 변하기 때문에 다이나믹 쿼리라고 한다 -->
+  	<update id="updateCommunity" parameterType = "CommunityVO">
+  		UPDATE	COMMUNITY
+  		SET		WRITE_DATE = SYSDATE
+  				<if test="requestIp !=null and requestIp !='' ">
+  				, REQUEST_IP = #{requestIp}
+  				</if>
+  				<if test="title !=null and title !='' ">
+  				, TITLE = #{title}
+  				</if>
+  				<if test="body !=null and body !='' ">
+  				, BODY = #{body}
+  				</if>
+  				, DISPLAY_FILE_NAME = #{dispalyFilename}
+  		WHERE	ID = #{id}
+  		AND		USER_ID = #{userId}	
+  	</update>
+  	
+  	
+  	<!-- 글 작성갯수 가져오기 -->
+  	<select id="selectMyCommunitiesCount" resultType="_int" 
+  			parameterType="_int" >
+  		SELECT	COUNT(ID)
+  		FROM	COMMUNITY
+  		WHERE	USER_ID=#{userId}	
+  	</select>
+  	
+  	<select id="selectMyCommunities" resultMap="CommunityVOMap"
+  			parameterType="_int">
+  		  SELECT  C.ID
+  			    , C.TITLE
+  			    , C.BODY
+  			    , C.USER_ID 
+  			    , TO_CHAR(C.WRITE_DATE , 'YYYY-MM-DD HH24:MI:SS') WRITE_DATE
+  			    , C.VIEW_COUNT 
+  			    , C.RECOMMEND_COUNT
+  			    , C.REQUEST_IP 
+  			    , C.DISPLAY_FILE_NAME
+                , M.ID M_ID
+                , M.EMAIL
+                , M.NICKNAME
+                , M.REGIST_DATE
+  		FROM	COMMUNITY C
+  			    , MEMBER M
+  		WHERE   C.USER_ID = M.ID
+  		AND		C.USER_ID = #{userId}
+  	</select>
+  	
+  	<delete id="deleteCommunities" parameterType="map">
+  		DELETE
+  		FROM	COMMUNITY
+  		WHERE	USER_ID = ${userId}
+  		AND		ID IN
+  		<foreach collection="ids" item="id" open="(" close=")" separator=", " >
+  			#{id}
+  		</foreach>
+  	
+  	</delete>
+  	
+  	
+  
+  </mapper>
