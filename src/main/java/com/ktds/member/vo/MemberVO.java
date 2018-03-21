@@ -16,6 +16,10 @@ public class MemberVO {
 	private String nickname;
 
 	private String registDate;
+	
+	//암호화
+	private String salt;
+
 
 
 
@@ -57,6 +61,14 @@ public class MemberVO {
 
 	public void setRegistDate(String registDate) {
 		this.registDate = registDate;
+	}
+	
+	public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
 	}
 	
 }

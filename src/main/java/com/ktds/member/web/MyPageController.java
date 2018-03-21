@@ -20,39 +20,37 @@ public class MyPageController {
 
 	private MemberService memberService;
 	private CommunityService communityService;
-	
+
 	public void setCommunityService(CommunityService communityService) {
 		this.communityService = communityService;
 	}
-	
+
 	public void setMemberService(MemberService memberService) {
 		this.memberService = memberService;
 	}
-	
-	
+
 	@RequestMapping("/mypage/communities")
 	public ModelAndView viewMyCommunities(HttpSession session) {
 		MemberVO member = (MemberVO) session.getAttribute(Member.USER);
-		
-		
+
 		List<CommunityVO> myCommunities = communityService.readMyCommunities(member.getId());
-		
+
 		ModelAndView view = new ModelAndView();
 		view.setViewName("member/mypage/myCommunities");
 		view.addObject("myCommunities", myCommunities);
-		
+
 		return view;
-		
+
 	}
-	
+
 	@RequestMapping("/mypage/communities/delete")
 	public String doDeleteMyCommunitiesAction(HttpSession session, @RequestParam List<Integer> delete) {
-	
+
 		MemberVO member = (MemberVO) session.getAttribute(Member.USER);
-		
+
 		communityService.deleteCommunities(delete, member.getId());
-		
+
 		return "redirect:/mypage/communities";
 	}
-	
+
 }
