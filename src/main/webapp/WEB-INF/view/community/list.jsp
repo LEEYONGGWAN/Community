@@ -12,6 +12,11 @@
 
 	<div id="wrapper">
 		<jsp:include page="/WEB-INF/view/template/menu.jsp"/>
+		
+		<div>
+			${pageExplorer.totalCount}건의 글이 검색 되었습니다
+		</div>
+		
 		<table>
 			<tr>
 				<th>ID</th>
@@ -21,19 +26,16 @@
 				<th>조회수</th>
 			</tr>
 
-			<c:forEach items="${communityList}" var="community">
+			<c:forEach items="${pageExplorer.list}" var="community">
 
 				<tr>
 					<td>${community.id }</td>
 					<td>
-					
 						<a href="<c:url value="/read/${community.id}"/>">${community.title}</a>
-
 						<c:if test="${not empty community.displayFilename}">
 							<img src="<c:url value="/static/img/file.png"/>"
 								alt="${community.displayFilename}" style="width: 20px;" />
 						</c:if></td>
-						
 						<td>
 							<!-- NICKNAME(EMAIL) -->
 							<c:choose>
@@ -44,27 +46,25 @@
 									탈퇴한 회원
 								</c:otherwise>	
 							</c:choose>
-							
 						</td>
-						
-						
-						
 					<td>${community.userId}</td>
 					<td>${community.writeDate}</td>
 					<td>${community.viewCount}</td>
 				</tr>
-
 			</c:forEach>
-
-
-
-			<c:if test="${empty communityList}">
+			<c:if test="${empty pageExplorer.list}">
 				<tr>
 					<td colspan="5">등록된 게시글이 없습니다.</td>
 				</tr>
 			</c:if>
 
 		</table>
+		
+		<form id="searchForm">
+			${ pageExplorer.make() };
+		</form>
+		
+		
 		<div>
 			<a href="<c:url value="/write"/>">글쓰기</a>
 		</div>

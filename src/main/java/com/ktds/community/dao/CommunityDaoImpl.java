@@ -3,6 +3,7 @@ package com.ktds.community.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ktds.community.vo.CommunitySearchVO;
 import com.ktds.community.vo.CommunityVO;
 
 public class CommunityDaoImpl implements CommunityDao {
@@ -13,10 +14,6 @@ public class CommunityDaoImpl implements CommunityDao {
 		communityList = new ArrayList<CommunityVO>();
 	}
 
-	@Override
-	public List<CommunityVO> selectAll() {
-		return communityList;
-	}
 
 	@Override
 	public int insertCommunity(CommunityVO communityVO) {
@@ -94,6 +91,18 @@ public class CommunityDaoImpl implements CommunityDao {
 
 	@Override
 	public int deleteCommunities(List<Integer> ids, int userId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public List selectAll(CommunitySearchVO communitySerachVO) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int selectCountAll(CommunitySearchVO communitySerachVO) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

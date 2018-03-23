@@ -43,11 +43,19 @@ public class ReplyController {
 		MemberVO member = (MemberVO) session.getAttribute(Member.USER);	
 		replyVO.setUserId(member.getId());
 		replyVO.setCommunityId(communityId);
-		Map<String, Object> result = new HashMap<String, Object>();
+		
 		
 		boolean isSuccess = replyService.createReply(replyVO);
+		
+		ReplyVO newReply = null;
+		if(isSuccess) {
+			newReply = replyService.readOneReply(replyVO.getId());
+		}
+		
+		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("status", isSuccess);
-		result.put("reply", replyVO);
+		result.put("reply", newReply);
+		
 		return result;
 	}
 	

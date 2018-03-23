@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
+import com.ktds.community.vo.CommunitySearchVO;
 import com.ktds.community.vo.CommunityVO;
 
 public class CommunityDaoImplForOracle extends SqlSessionDaoSupport implements CommunityDao{
@@ -16,10 +17,19 @@ public class CommunityDaoImplForOracle extends SqlSessionDaoSupport implements C
 	지금 여기서는 mybatis가 dao에 접근하게 해주는 기능을 넣어주는 클래스임*/
 	
 	@Override
-	public List<CommunityVO> selectAll() {
-		//파라미터는 인터페이스. 메소드명
-		return getSqlSession().selectList("CommunityDao.selectAll");
+	public int selectCountAll(CommunitySearchVO communitySearchVO) {
+		return getSqlSession().selectOne("CommunityDao.selectCountAll", communitySearchVO);
 	}
+	
+	@Override
+	public List<CommunityVO> selectAll(CommunitySearchVO communitySearchVO) {
+		//파라미터는 인터페이스. 메소드명
+		return getSqlSession().selectList("CommunityDao.selectAll",communitySearchVO);
+	}
+	
+	
+	
+	
 	@Override
 	public CommunityVO selectOne(int id) {
 		return getSqlSession().selectOne("CommunityDao.selectOne", id);
@@ -70,6 +80,8 @@ public class CommunityDaoImplForOracle extends SqlSessionDaoSupport implements C
 		
 		return getSqlSession().selectList("CommunityDao.selectMyCommunities", userId);
 	}
+
+
 
 	
 

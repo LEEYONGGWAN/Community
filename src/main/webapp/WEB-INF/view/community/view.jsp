@@ -8,27 +8,89 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>${community.title}</title>
 
-<script src="<c:url value="/static/js/jquery-3.3.1.min.js"/>"
-	type="text/javascript"></script>
+<link  rel="stylesheet" type="text/css" href="<c:url value="/static/css/alert.css"/>" />
+
+<script src="<c:url value="/static/js/jquery-3.3.1.min.js"/>" type="text/javascript"></script>
+
+<script type="text/javascript" src="<c:url value="/static/js/alert.js" />"></script>
 <script type="text/javascript">
 
 	$().ready(function() {	
+		// 여기선 get으로 만 동작하는 에이젝스이기 때문에 겟으로 보낸다
+		
+		
+		loadReplies(0);
+		function loadReplies(scrollTop){
+		$.get("<c:url value="/api/reply/${community.id}"/>", {}, 
+				function(response) {
+					for(var i in response){
+						appendReplies(response[i]);
+					}
+					
+					//위치 유지 
+					$(window).scrollTop(scrollTop);
+			});
+		}
+		
+		
+		
+		
 		//ajax 에서 폼형태로 보내주고 싶을때 (멀티파트폼은 에이젝스에서 보내기 불가)
 		$("#writeReplyBtn").click(function() {
-			console.log($("#writeReplyForm").serialize());
-			
 			$.post("<c:url value="/api/reply/${community.id}" />",
 					$("#writeReplyForm").serialize(),
 					function(response) {
-						alert("등록됨");
-						console.log(response);
-			});
+						if( response.status){
+							show("댓글 등록 됨");
+							
+							$("#parentReplyId").val("0");
+							$("#body").val("");
+							$("#createReply").appendTo("#createReplyDiv");
+							
+							var scrollTop = $(window).scrollTop();
+							alert(scrollTop);
+														
+							//appendReplies(response.reply);
+							//ID가 replies 인것을 초기화
+							$("#replies").html("");
+							loadReplies(scrollTop);
+						}
+						else{
+							alert("등록의 실패했습니다. 잠시 후에 다시 시도하세요.");	
+						}
+					});
 		});
+		
+		$("#replies").on("click", ".re-reply", function() {
+			var parentReplyId = $(this).closest(".reply").data("id");
+			$("#parentReplyId").val(parentReplyId);
+			//appendTo 는 붙여넣는게 아니고 위치를 옮기는것
+			$("#createReply").appendTo($(this).closest(".reply"));
+		}); 
 		
 		
 		$("#deleteBtn").click(function() {
 			$(location).attr("href", "<c:url value="/delete/${community.id}"/>");
 		});
+		
+		
+		function appendReplies(reply){
+			
+			var replyDiv = $("<div class='reply' 
+					data-id='"+ reply.id +"' 
+					style= 'padding-left:"+ ((reply.level-1) * 20) +"px;'></div>");
+			
+			var nickname = reply.memberVO.nickname + "(" + reply.memberVO.email +")";
+			var top = $("<span class='writer'>" + nickname + "</span><span class='regist-date'>" + reply.registDate + "</span>")
+			replyDiv.append( top );
+			
+			var body = $("<div class ='body'>"+  reply.body + "</div>")
+			replyDiv.append( body);
+			
+			var registReReply = $("<div class= 're-reply'>★댓글 달기★</div>");
+			replyDiv.append(registReReply);
+			$("#replies").append(replyDiv);
+		}
 	});
 	
 </script>
@@ -67,16 +129,18 @@
 			<p>${community.body}</p>
 			<hr />
 			<div id="replies"></div>
-			<div id="createReply">
-				<form id="writeReplyForm"> 
-					<input type="hidden" id="parentReplyId" name="parentReplyId" value="0" />
-					<div>
-						<textarea id="body" name="body"></textarea>
-					</div>
-					<div>
-						<input type="button" id="writeReplyBtn" value="등록" />
-					</div>
-				</form>
+			<div id="createReplyDiv">
+				<div id="createReply">
+					<form id="writeReplyForm"> 
+						<input type="hidden" id="parentReplyId" name="parentReplyId" value="0" />
+						<div>
+							<textarea id="body" name="body"></textarea>
+						</div>
+						<div>
+							<input type="button" id="writeReplyBtn" value="등록" />
+						</div>
+					</form>
+				</div>
 			</div>
 
 			<p>

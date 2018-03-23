@@ -2,10 +2,13 @@ package com.ktds.community.service;
 
 import java.util.List;
 
+import com.ktds.community.vo.CommunitySearchVO;
 import com.ktds.community.vo.CommunityVO;
 
+import io.github.seccoding.web.pager.explorer.PageExplorer;
+
 public interface CommunityService {
-	public List<CommunityVO> getAll();
+	public PageExplorer getAll(CommunitySearchVO communitySearchVO);
 	
 	public CommunityVO getOne(int id);
 

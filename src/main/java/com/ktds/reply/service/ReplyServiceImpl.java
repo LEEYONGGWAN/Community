@@ -19,8 +19,15 @@ public class ReplyServiceImpl implements ReplyService{
 	}
 
 	@Override
+	public ReplyVO readOneReply(int replyId) {
+		return replyDao.selectOneRelpy(replyId);
+	}
+	
+	@Override
 	public boolean createReply(ReplyVO replyVO) {
 		return replyDao.insertReply(replyVO) >0 ;
 	}
+
+
 
 }

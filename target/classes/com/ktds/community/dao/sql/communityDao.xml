@@ -26,30 +26,50 @@
   			<result column="REGIST_DATE" property="registDate"/>
   		</association>
   	</resultMap>
+
+
+	 <!-- count 쿼리와 list쿼리의 안은 완벽히 같아야 한다. -->  	
+  	<select id="selectCountAll" resultType ="_int" 
+  							parameterType="CommunitySearchVO">
+  			SELECT  COUNT(C.ID)
+			FROM	COMMUNITY C
+	    			, MEMBER M
+			WHERE   C.USER_ID = M.ID(+)	   
+  	</select>
+  	
   	
   	
   	<!-- interface에 있는 메소드의 이름을 적는다 -->
   	<!-- resultType 은 저 타입으로 변형시켜서 돌려준다. join 타입이 없을떄-->
   	<!-- resultMap 은 join 타입이 있을떄-->
   	
-  	<select id="selectAll" resultMap="CommunityVOMap">
-		SELECT  C.ID
-  			    , C.TITLE
-  			    , C.BODY
-  			    , C.USER_ID 
-  			    , TO_CHAR(C.WRITE_DATE , 'YYYY-MM-DD HH24:MI:SS') WRITE_DATE
-  			    , C.VIEW_COUNT 
-  			    , C.RECOMMEND_COUNT
-  			    , C.REQUEST_IP 
-  			    , C.DISPLAY_FILE_NAME
-                , M.ID M_ID
-                , M.EMAIL
-                , M.NICKNAME
-                , M.REGIST_DATE
-  		FROM	COMMUNITY C
-  			    , MEMBER M
-  		WHERE   C.USER_ID = M.ID(+)	   
-  		ORDER   BY C.ID DESC
+  	<select id="selectAll" resultMap="CommunityVOMap" parameterType ="CommunitySearchVO">
+		SELECT	*
+		FROM	(
+					SELECT	ROWNUM RNUM
+							, C.*
+					FROM	(
+								SELECT  C.ID
+			  			    			, C.TITLE
+			  			   			    , C.BODY
+			  			  	            , C.USER_ID 
+			  			    			, TO_CHAR(C.WRITE_DATE , 'YYYY-MM-DD HH24:MI:SS') WRITE_DATE
+			  			    			, C.VIEW_COUNT 
+			  			    			, C.RECOMMEND_COUNT
+			  			    			, C.REQUEST_IP 
+			  			    			, C.DISPLAY_FILE_NAME
+			                			, M.ID M_ID
+			                			, M.EMAIL
+			                			, M.NICKNAME
+			                			, M.REGIST_DATE
+			  					FROM	COMMUNITY C
+			  			    			, MEMBER M
+			  					WHERE   C.USER_ID = M.ID(+)	   
+			  					ORDER   BY C.ID DESC
+			  				) C
+			  		WHERE	ROWNUM <![CDATA[ <= ]]> #{endNumber}
+				) 
+		WHERE	RNUM >= #{startNumber}		
   	</select>
   	
   	<!-- 밸류즈에서  -->

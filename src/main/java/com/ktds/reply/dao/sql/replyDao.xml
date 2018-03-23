@@ -7,6 +7,7 @@
 
 	<resultMap type="ReplyVO" id="ReplyVOMap">
 		<id column="R_ID" property="id" />
+		<result column="LEVEL" property="level" />
 		<result column="R_USER_ID" property="userId" />
 		<result column="COMMUNITY_ID" property="communityId" />
 		<result column="R_BODY" property="body" />
@@ -38,6 +39,39 @@
 
 
 	<select id="selectAllReplies" parameterType="_int" resultMap="ReplyVOMap">
+		SELECT 	LEVEL
+				, R.ID R_ID
+				, R.USER_id R_USER_ID
+				, R.COMMUNITY_ID
+				, R.BODY R_BODY
+				, R.REGIST_DATE R_REGIST_DATE
+				, R.PARENT_REPLY_ID
+				, C.ID C_ID
+				, C.TITLE
+				, C.BODY C_BODY
+				, C.VIEW_COUNT
+				, C.RECOMMEND_COUNT
+				, C.REQUEST_IP
+				, C.DISPLAY_FILE_NAME
+				, C.USER_ID C_USER_ID
+				, R_M.ID M_ID
+				, R_M.NICKNAME
+				, R_M.EMAIL
+				, R_M.REGIST_DATE M_REGUST_DATE
+		FROM 	REPLY R
+				, COMMUNITY C
+				, MEMBER R_M
+				, MEMBER C_M
+		WHERE 	R.USER_ID = R_M.ID
+		AND 	R.COMMUNITY_ID = C.ID
+		AND 	C_M.ID = C.USER_ID
+		AND		R.COMMUNITY_ID = #{communityId}
+		START	WITH R.PARENT_REPLY_ID = 0
+		CONNECT	BY PRIOR R.ID = R.PARENT_REPLY_ID
+		ORDER	SIBLINGS BY R.ID ASC
+	</select>
+
+	<select id="selectOneRelpy" parameterType="_int" resultMap="ReplyVOMap">
 		SELECT R.ID R_ID
 		, R.USER_id R_USER_ID
 		, R.COMMUNITY_ID
@@ -52,18 +86,21 @@
 		, C.REQUEST_IP
 		, C.DISPLAY_FILE_NAME
 		, C.USER_ID C_USER_ID
-		, M.ID M_ID
-		, M.NICKNAME
-		, M.EMAIL
-		, M.REGIST_DATE M_REGUST_DATE
-		FROM REPLY R
-		, COMMUNITY C
-		, MEMBER M
-		/* , REPLY PR */
-		WHERE R.USER_ID = M.ID
-		AND R.COMMUNITY_ID = C.ID
-		AND M.ID = C.USER_ID
+		, R_M.ID M_ID
+		, R_M.NICKNAME
+		, R_M.EMAIL
+		, R_M.REGIST_DATE M_REGUST_DATE
+		FROM	REPLY R
+				, COMMUNITY C
+				/*첫번째는 커뮤니티를 작성한 멤버 두번째는 리플라이를 작성한 멤버  */
+				, MEMBER C_M
+				, MEMBER R_M
+		WHERE	 R.USER_ID = R_M.ID
+		AND		 R.COMMUNITY_ID = C.ID
+		AND		 C_M.ID = C.USER_ID
+		AND		 R.ID = #{replyId}
 	</select>
+
 
 	<select id="nextValue" resultType="_int">
 		SELECT REPLY_ID_SEQ.NEXTVAL

@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ktds.community.service.CommunityService;
+import com.ktds.community.vo.CommunitySearchVO;
 import com.ktds.community.vo.CommunityVO;
 import com.ktds.member.constants.Member;
 import com.ktds.member.vo.MemberVO;
 import com.ktds.util.DownloadUtil;
+
+import io.github.seccoding.web.pager.explorer.PageExplorer;
 
 @Controller
 public class CommunityController {
@@ -36,7 +37,7 @@ public class CommunityController {
 	}
 
 	@RequestMapping("/")
-	public ModelAndView viewListPage(/* HttpSession session */) {
+	public ModelAndView viewListPage(CommunitySearchVO communitySearchVO/* HttpSession session */) {
 		/*
 		 * if (session.getAttribute(Member.USER) == null) { return new
 		 * ModelAndView("redirect:/login"); }
@@ -45,10 +46,11 @@ public class CommunityController {
 		ModelAndView view = new ModelAndView();
 
 		// /WEB-INF/view/community/list.jsp
+		
 		view.setViewName("community/list");
 
-		List<CommunityVO> communityList = communityService.getAll();
-		view.addObject("communityList", communityList);
+		PageExplorer pageExplorer = communityService.getAll(communitySearchVO);
+		view.addObject("pageExplorer", pageExplorer);
 
 		return view;
 	}
