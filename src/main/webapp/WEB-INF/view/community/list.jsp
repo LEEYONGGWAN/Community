@@ -7,6 +7,18 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
+<script type="text/javascript" src="<c:url value="/static/js/jquery-3.3.1.min.js" /> " ></script>
+<script type="text/javascript">
+	$().ready(function() {
+		//검색에서 enter KEY 쳤을때 검색되게 하기
+		$("#searchKeyword").keyup(function(event) {
+			if( event.key =="Enter"){
+				movePage('0');								
+			}			
+		});
+	});
+</script>
+
 </head>
 <body>
 
@@ -59,11 +71,26 @@
 			</c:if>
 
 		</table>
-		
-		<form id="searchForm">
-			${ pageExplorer.make() };
+		 <!-- 서브밋이 되면 무브페이지를 실행 하라(지금 서브밋 자꾸되서 배드리퀘스트 뜸) -->
+		<form id="searchForm" onsubmit="movePage('0')">
+			${ pageExplorer.make() }
+			<div>
+				<select id="searchType" name="searchType">
+					<option value="1" ${search.searchType eq 1 ? 'selected' : '' }>글 제목</option>
+					<option value="2" ${search.searchType eq 2 ? 'selected' : '' }>글 내용</option>
+					<option value="3" ${search.searchType eq 3 ? 'selected' : '' }>글 제목 + 글 내용</option>
+					<option value="4" ${search.searchType eq 4 ? 'selected' : '' }>작성자 Nickname</option>
+					<option value="5" ${search.searchType eq 5 ? 'selected' : '' }>작성자 Email</option>
+					<option value="6" ${search.searchType eq 6 ? 'selected' : '' }>첨부파일 이름</option>
+					<option value="7" ${search.searchType eq 7 ? 'selected' : '' }>첨부파일 확장자</option>
+				</select>
+				<!-- 내가 지금 이런걸 검색하는 중이야 라는걸  value를 통해 알려줌 -->
+			<input type="text" id="searchKeyword" name="searchKeyword" 
+					value="${search.searchKeyword}"/>
+			
+				<a href= "<c:url value="/reset" />" >검색 초기화</a>
+			</div>
 		</form>
-		
 		
 		<div>
 			<a href="<c:url value="/write"/>">글쓰기</a>

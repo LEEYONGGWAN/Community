@@ -5,8 +5,15 @@ import io.github.seccoding.web.pager.annotations.StartRow;
 
 public class CommunitySearchVO {
 
-	private int pageNo;
+	// parameter가 넘어왔는지 안넘어왔는지 알고싶어서 --> 요놈을 글검색기능할떄 필요로 할거임
+	private int pageNo = -1;
 	
+	private int searchType;
+	private String searchKeyword;
+	
+	
+
+
 	@StartRow
 	private int startNumber;
 	
@@ -35,6 +42,22 @@ public class CommunitySearchVO {
 
 	public void setEndNumber(int endNumber) {
 		this.endNumber = endNumber;
+	}
+	
+	public int getSearchType() {
+		return searchType;
+	}
+
+	public void setSearchType(int searchType) {
+		this.searchType = searchType;
+	}
+
+	public String getSearchKeyword() {
+		return searchKeyword;
+	}
+
+	public void setSearchKeyword(String searchKeyword) {
+		this.searchKeyword = searchKeyword;
 	}
 
 }

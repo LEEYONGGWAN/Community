@@ -17,6 +17,17 @@
 		<property name="password" value="community" />
 
 	</bean>
+	
+	
+	<!-- mysql 설정 -->
+	<bean id="mysqlDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/sys?serverTimezone=UTC" />
+		<property name="username" value="history" />
+		<property name="password" value="history" />
+	</bean>
+
+	
 
 	<!-- MyBatis 설정 위에 방식으로 연결해도 되는데 그러면 코드 줄만 엄청길고 좀 힘듬 그래서 이거 자주씀 -->
 	<!-- mybatis가 디비에 접속할수 있도록 도와주는 설정 -->
@@ -57,5 +68,39 @@
 					  expression="execution(public * com.ktds..service.*ServiceImpl.*(..))" />
 		<aop:advisor advice-ref="rollbackRule" pointcut-ref="pointCut" />
 	</aop:config>
+	
+	<!-- aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 여기서부턴 mysql aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -->
+	
+	<bean id="mysqlSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="mysqlDataSource" />
+		<property name="configLocation" value="classpath:/mybatis/mybatis.xml" />
+	</bean>
+
+	<bean id="mysqlSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		  <constructor-arg name="sqlSessionFactory" ref="mysqlSqlSessionFactory"/>
+	</bean>
+
+	<bean id="mysqlTransactionManager"
+		  class= "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		 <property name="dataSource" ref="mysqlDataSource"/> 
+    </bean>
+
+    <tx:advice id="mysqlRollbackRule" transaction-manager="mysqlTransactionManager">
+    	<tx:attributes>
+    		<tx:method name="create*" rollback-for="RuntimeException"/>
+    		<tx:method name="read*" rollback-for="RuntimeException"/>
+    		<tx:method name="update*" rollback-for="RuntimeException"/>
+    		<tx:method name="delete*" rollback-for="RuntimeException"/>
+    		<tx:method name="increment*" rollback-for="RuntimeException"/>
+    	</tx:attributes>
+    </tx:advice>
+    
+	<aop:config>
+		<aop:pointcut id="mysqlPointCut"
+					  expression="execution(public * com.ktds..service.*ServiceImpl.*(..))" />
+		<aop:advisor advice-ref="mysqlRollbackRule" pointcut-ref="mysqlPointCut" />
+	</aop:config>
+	
+	
 	
 </beans>

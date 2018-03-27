@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
   <!-- namespace에는 인터페이스의 이름을 적어준다. -->
-  
   <mapper namespace="CommunityDao">
   	<!--pk만 id 라고 준다. 순서 상관없이 다 맞춰서 넣어라  -->
   
@@ -28,13 +28,46 @@
   	</resultMap>
 
 
-	 <!-- count 쿼리와 list쿼리의 안은 완벽히 같아야 한다. -->  	
+	 <!-- count 쿼리와 list(selectAll)쿼리의 조건은 항상 완벽히 같아야 한다. -->  	
+	
   	<select id="selectCountAll" resultType ="_int" 
   							parameterType="CommunitySearchVO">
   			SELECT  COUNT(C.ID)
 			FROM	COMMUNITY C
 	    			, MEMBER M
-			WHERE   C.USER_ID = M.ID(+)	   
+			WHERE   C.USER_ID = M.ID(+)
+			AND		WRITE_DATE <![CDATA[ <= ]]> SYSDATE
+			AND		WRITE_DATE >= ADD_MONTHS(SYSDATE, -1)
+			<choose>
+				<when test="searchType == 1">
+				<!-- '%KEYWORD%' 요것이 %위치에 따라 KEYWORD로 시작하는지 끝나는지가 됨 -->
+				<!-- ||가 자바에서의 + 랑 같은 기능 -->
+			AND		C.TITLE LIKE '%' || #{searchKeyword} || '%'	
+				</when>
+				<when test="searchType == 2">
+			AND		C.BODY LIKE '%' || #{searchKeyword} || '%'		
+				</when>
+				<when test="searchType == 3">
+				
+			<!-- 이 코드는 작동하지 않음 AND는 무조건 붙어야 되는데 이조건이라면
+			AND 때문에 반드시 타이틀에 서치키워드가 !있고! 가 되어버림 그래서 무조건 이런형식이라면 
+			AND 부터 OR 까지 감싸줘야함 -->	
+			AND		( C.TITLE LIKE '%' || #{searchKeyword} || '%'	
+			OR		C.BODY LIKE '%' || #{searchKeyword} || '%' )
+				</when>
+				<when test="searchType == 4">
+			AND		M.NICKNAME LIKE '%' || #{searchKeyword} || '%'		
+				</when>
+				<when test="searchType == 5">
+			AND		M.EMAIL LIKE '%' || #{searchKeyword} || '%'		
+				</when>
+				<when test="searchType == 6">
+			AND		C.DISPLAY_FILE_NAME LIKE '%' || #{searchKeyword} || '%'		
+				</when>
+				<when test="searchType == 7">
+			AND		C.DISPLAY_FILE_NAME LIKE '%.' || #{searchKeyword}	
+				</when>
+			</choose>	   
   	</select>
   	
   	
@@ -64,7 +97,44 @@
 			                			, M.REGIST_DATE
 			  					FROM	COMMUNITY C
 			  			    			, MEMBER M
-			  					WHERE   C.USER_ID = M.ID(+)	   
+			  					WHERE   C.USER_ID = M.ID(+)
+			  					<!-- 기간 검색 기능 무조건 항상 커리에 필요함(안그러면 기본쿼리 속도 빠를려고 한건데 의미가없어짐) -->
+			  					AND		WRITE_DATE <![CDATA[ <= ]]> SYSDATE
+			  					AND		WRITE_DATE >= ADD_MONTHS(SYSDATE, -1) 
+							  	<!-- 위에 커리와 조건 항상 맞춰주자! -->
+							  	<choose>
+									<when test="searchType == 1">
+									<!-- '%KEYWORD%' 요것이 %위치에 따라 KEYWORD로 시작하는지 끝나는지가 됨 -->
+									<!-- ||가 자바에서의 + 랑 같은 기능 -->
+								AND		C.TITLE LIKE '%' || #{searchKeyword} || '%'	
+									</when>
+									<when test="searchType == 2">
+								AND		C.BODY LIKE '%' || #{searchKeyword} || '%'		
+									</when>
+									<when test="searchType == 3">
+									
+								<!-- 이 코드는 작동하지 않음 AND는 무조건 붙어야 되는데 이조건이라면
+								AND 때문에 반드시 타이틀에 서치키워드가 !있고! 가 되어버림 그래서 무조건 이런형식이라면 
+								AND 부터 OR 까지 감싸줘야함 -->	
+								AND		( C.TITLE LIKE '%' || #{searchKeyword} || '%'	
+								OR		C.BODY LIKE '%' || #{searchKeyword} || '%' )
+									</when>
+									<when test="searchType == 4">
+								AND		M.NICKNAME LIKE '%' || #{searchKeyword} || '%'		
+									</when>
+									<when test="searchType == 5">
+								AND		M.EMAIL LIKE '%' || #{searchKeyword} || '%'		
+									</when>
+									<when test="searchType == 6">
+								AND		C.DISPLAY_FILE_NAME LIKE '%' || #{searchKeyword} || '%'		
+									</when>
+									<when test="searchType == 7">
+								AND		C.DISPLAY_FILE_NAME LIKE '%.' || #{searchKeyword}	
+									</when>
+								</choose>	
+			  					
+			  					
+			  						   
 			  					ORDER   BY C.ID DESC
 			  				) C
 			  		WHERE	ROWNUM <![CDATA[ <= ]]> #{endNumber}

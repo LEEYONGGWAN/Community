@@ -142,9 +142,7 @@
 
 			else {
 
-				$.post("<c:url value="/api/exists/email"  />", {
-					email : $("#email").val()
-				}, function(response) {
+				$.post("<c:url value="/api/exists/email"  />", { email : $("#email").val() }, function(response) {
 
 					if (response.response) {
 						alert("작성한 이메일은 사용할수 없습니다.");

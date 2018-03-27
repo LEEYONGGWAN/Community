@@ -37,9 +37,7 @@
 		
 		//ajax 에서 폼형태로 보내주고 싶을때 (멀티파트폼은 에이젝스에서 보내기 불가)
 		$("#writeReplyBtn").click(function() {
-			$.post("<c:url value="/api/reply/${community.id}" />",
-					$("#writeReplyForm").serialize(),
-					function(response) {
+			$.post("<c:url value="/api/reply/${community.id}" />",	$("#writeReplyForm").serialize(), function(response) {
 						if( response.status){
 							show("댓글 등록 됨");
 							
@@ -48,7 +46,7 @@
 							$("#createReply").appendTo("#createReplyDiv");
 							
 							var scrollTop = $(window).scrollTop();
-							alert(scrollTop);
+							//alert(scrollTop);
 														
 							//appendReplies(response.reply);
 							//ID가 replies 인것을 초기화
@@ -76,9 +74,7 @@
 		
 		function appendReplies(reply){
 			
-			var replyDiv = $("<div class='reply' 
-					data-id='"+ reply.id +"' 
-					style= 'padding-left:"+ ((reply.level-1) * 20) +"px;'></div>");
+			var replyDiv = $("<div class='reply' data-id='"+ reply.id +"' style= 'padding-left:"+ ((reply.level-1) * 20) +"px;'></div>");
 			
 			var nickname = reply.memberVO.nickname + "(" + reply.memberVO.email +")";
 			var top = $("<span class='writer'>" + nickname + "</span><span class='regist-date'>" + reply.registDate + "</span>")
@@ -144,7 +140,8 @@
 			</div>
 
 			<p>
-				<a href="<c:url value="/"/>">뒤로가기</a> <a
+				
+				<a href="<c:url value="/"/>">목록 으로</a> <a
 					href="<c:url value="/recommend/${community.id}"/>"> 추천하기 </a>
 				<c:if test="${ sessionScope.__USER__.id == community.memberVO.id }">
 					<a href="<c:url value ="/modify/${ community.id }"/>">수정하기</a>

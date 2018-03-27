@@ -9,15 +9,19 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.ktds.actionhistory.vo.ActionHistory;
+import com.ktds.actionhistory.vo.ActionHistoryVO;
 import com.ktds.community.service.CommunityService;
 import com.ktds.member.constants.Member;
 import com.ktds.member.service.MemberService;
@@ -77,23 +81,28 @@ public class MemberController {
 		if (session.getAttribute(Member.USER) != null) {
 			return "redirect:/";
 		}
-
 		return "member/login";
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String doLoginAction(MemberVO memberVO, Errors errors, HttpServletRequest request) {
+	public String doLoginAction(MemberVO memberVO,HttpSession session, HttpServletRequest request) {
 		
-		HttpSession session = request.getSession();
+		session = request.getSession();
 
+		
+		//mysql 이런걸 시도했었다는 내용 로그남기기
+		ActionHistoryVO history = (ActionHistoryVO)request.getAttribute("actionHistory");
+		history.setReqType(ActionHistory.ReqType.MEMBER);
+		String log = String.format(ActionHistory.Log.LOGIN, memberVO.getEmail());
+		history.setLog(log);
+	
+		
+		
 		// DB에 계정이 존재하지 않을 경우로 변경
 		// db에 있는 정보에서 멤버를 찾아서 로그인멤버에 넣어줌 만약에 디비에 아무것도 없으면 null값임
 		MemberVO loginMember = memberService.readMember(memberVO);
 		
-		System.out.println("들어옴");
-		
 		if (loginMember != null) {
-			System.out.println("들어옴2");
 			session.setAttribute(Member.USER, loginMember);
 			return "redirect:/";
 		}
@@ -103,12 +112,24 @@ public class MemberController {
 	}
 
 	@RequestMapping("/logout")
-	public String doLogoutAction(HttpSession session) {
+	public String doLogoutAction(HttpSession session,
+									@RequestAttribute ActionHistoryVO actionHistory) {
+		
+		MemberVO member = (MemberVO) session.getAttribute(Member.USER);
+		
+		actionHistory.setReqType(ActionHistory.ReqType.MEMBER);
+		String log = String.format(ActionHistory.Log.LOGOUT, member.getEmail());
+		actionHistory.setLog(log);
+		
 		// 세션 소멸
 		session.invalidate();
+		
+
 		return "redirect:/login";
 	}
 
+	
+	
 	@RequestMapping(value = "/regist", method = RequestMethod.GET)
 	public String viewRegistPage() {
 
@@ -116,18 +137,39 @@ public class MemberController {
 	}
 
 	@RequestMapping(value = "/regist", method = RequestMethod.POST)
-	public ModelAndView doRegistAction(@ModelAttribute("registForm") @Valid MemberVO memberVO, Errors errors) {
+	public String doRegistAction(@ModelAttribute("registForm") 
+										@Valid MemberVO memberVO, Errors errors, 
+										HttpServletRequest request, Model model) {
 
-		if (errors.hasErrors()) {
-			return new ModelAndView("member/regist");
+		if ( errors.hasErrors() ) {
+			return "member/regist";
 		}
 		
-		if (memberService.createMember(memberVO)) {
-			return new ModelAndView("redirect:/login");
+		ActionHistoryVO history = (ActionHistoryVO) request.getAttribute("actionHistory");
+		//ActionHistory 인터페이스 변수에 접근하기
+		history.setReqType(ActionHistory.ReqType.MEMBER);
+		
+		if ( memberService.createMember(memberVO) ) {
+			//로그인 성공여부 로그남기기(mysql)
+			String log = String.format(ActionHistory.Log.REGIST, memberVO.getEmail(), memberVO.getNickname(), "true");
+			history.setLog(log);
+			model.addAttribute("actionHistory", history);
+			
+			
+			return "redirect:/login";
 		}
 		
-		return new ModelAndView("member/regist");
+		//로그인 실패여부 로그남기기(mysql)
+		String log = String.format(ActionHistory.Log.REGIST, memberVO.getEmail(), memberVO.getNickname(), "false");
+		history.setLog(log);
+		model.addAttribute("actionHistory", history);
+		
+		return "member/regist";
 	}
+	
+	
+	
+	
 	
 	@RequestMapping("/delete/process1")
 	public String viewVerifyPage() {
@@ -171,13 +213,6 @@ public class MemberController {
 		
 		return view;
 	}
-	
-/*	@RequestMapping("/memberLeave/process3")
-	public String odf() {
-		return"";
-	}*/
-	
-	
 	
 	@RequestMapping("/account/delete/{deleteFlag}")
 	public String removeId(HttpSession session,
