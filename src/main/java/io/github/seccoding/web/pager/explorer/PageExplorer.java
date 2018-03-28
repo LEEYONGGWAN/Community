@@ -4,11 +4,16 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.seccoding.web.pager.Pager;
 import io.github.seccoding.web.pager.decorator.Decorator;
 
 public abstract class PageExplorer {
 
+	private Logger logger = LoggerFactory.getLogger("io.github");
+	
 	protected boolean isSetData;
 	protected Pager pager;
 	protected Decorator decorator;
@@ -132,6 +137,7 @@ public abstract class PageExplorer {
 	}
 	
 	protected String makeHighlightNowPageNumber(String pageNumber) {
+		logger.info("PageNumber : " + pageNumber);
 		if ( makeHighlight == null ) {
 			return decorator.makeHighlightNowPageNumber(pageNumber);
 		}

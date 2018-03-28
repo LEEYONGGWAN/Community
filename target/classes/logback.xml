@@ -39,11 +39,10 @@
 		</encoder>
 	</appender>
 
-
-
+	<logger name="io.github" level="INFO"></logger>
 
 	<!-- 운영상황에서는 info 개발할때는 debug -->
-	<root level="debug">
+	<root level="WARN">
 		<!-- 여기서 stdout은 위에 있는 애랑 똑같은 애임, 어팬더는 파일에 원래 쓰는건데 stdout은 콘솔에 위에 패턴대로 
 			계속 쓴다는 의미 -->
 		<appender-ref ref="STDOUT" />
