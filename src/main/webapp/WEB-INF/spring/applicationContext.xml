@@ -9,7 +9,7 @@
 
 	<!-- 정적자원 설정 mapping : 정적자원을 가져올 고유 URL location : 정적자원이 있는 Base home /web-inf/static/js/jquery-3.3.1.min.js 
 		==> http://localhost:ContextPath/static/js/jqery-3.3.1.min.js 이렇게 들어가야 데려올수있음 -->
-	<mvc:resources mapping="/static/**" location="/WEB-INF/static/" />
+	<mvc:resources location="/WEB-INF/static/" mapping="/static/**" />
 
 
 	<mvc:interceptors>
